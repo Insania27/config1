@@ -1,5 +1,5 @@
 ls
 cat lll
-cd /home
-ls /home
+cd /dir1
+ls /dir1
 exit
