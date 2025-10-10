@@ -2,7 +2,6 @@ import argparse
 import shlex
 import Methods
 
-
 def main():
     parser = argparse.ArgumentParser(description='Emulator CLI')
     parser.add_argument('--vfs', type=str, help='Path to VFS location')
@@ -12,6 +11,9 @@ def main():
 
     print(f"Debug: VFS path = {args.vfs}")
     print(f"Debug: Script path = {args.script}")
+
+    if args.vfs:
+        Methods.load_vfs_from_csv(args.vfs)
 
     if args.script:
         if not Methods.execute_script(args.script):

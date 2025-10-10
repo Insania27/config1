@@ -1,6 +1,25 @@
 import os
 import socket
 import shlex
+import csv
+
+vfs = {}
+current_path = "/"
+
+def load_vfs_from_csv(csv_path):
+    global vfs
+    try:
+        with open(csv_path, newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                path = row['path']
+                vfs[path] = {'type': row['type'], 'content': row.get('content', '')}
+    except FileNotFoundError:
+        print(f"Error: VFS file '{csv_path}' not found")
+        exit(1)
+    except Exception as e:
+        print(f"Error loading VFS: {str(e)}")
+        exit(1)
 
 def handle_ls(args):
     print("Command: ls ", args)
@@ -9,18 +28,17 @@ def handle_cd(args):
     print("Command: cd ", args)
 
 def handle_unknown_command(command):
-    print("Unknown_command:", command)
+    print(f"Unknown command: {command}")
 
 def get_prompt():
     username = os.environ.get("USERNAME", "user")
     hostname = socket.gethostname()
-    return f"{username}@{hostname}:~$ "
+    return f"{username}@{hostname}:{current_path}$ "
 
 def expand_variables(command):
     home_dir = os.environ.get('USERPROFILE', 'C:\\Users\\User')
     command = command.replace('$USERPROFILE', repr(home_dir).replace("\\\\", "\\"))
     return command
-
 
 def execute_script(script_path):
     error_messages = []
@@ -63,6 +81,5 @@ def execute_script(script_path):
         print("\nScript execution completed with errors:")
         for error in error_messages:
             print(f"  {error}")
-
 
     return True
