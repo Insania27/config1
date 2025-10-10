@@ -1,41 +1,47 @@
-import os
-import socket
+import argparse
 import shlex
+import Methods
 
-def handle_ls(args):
-    print("Command: ls ", args)
-
-def handle_cd(args):
-    print("Command: cd ", args)
-
-def handle_unknown_command(command):
-    print("Unknown_command:", command)
-
-def get_prompt():
-    username = os.environ.get("USERNAME", "user")
-    hostname = socket.gethostname()
-    return f"{username}@{hostname}:~$ "
-
-def expand_variables(command):
-    return os.path.expandvars(command)
 
 def main():
+    parser = argparse.ArgumentParser(description='Emulator CLI')
+    parser.add_argument('--vfs', type=str, help='Path to VFS location')
+    parser.add_argument('--script', type=str, help='Path to startup script')
+
+    args = parser.parse_args()
+
+    print(f"Debug: VFS path = {args.vfs}")
+    print(f"Debug: Script path = {args.script}")
+
+    if args.script:
+        if not Methods.execute_script(args.script):
+            return
+
     while True:
-        prompt = get_prompt()
-        user_input = input(prompt)
+        try:
+            prompt = Methods.get_prompt()
+            user_input = input(prompt)
 
-        if not user_input: continue
+            if not user_input:
+                continue
 
-        expanded_input = expand_variables(user_input)
-        tokens = shlex.split(expanded_input)
-        command = tokens[0]
-        args = tokens[1:]
+            expanded_input = Methods.expand_variables(user_input)
+            tokens = shlex.split(expanded_input)
+            command = tokens[0]
+            args = tokens[1:]
 
-        if command == "exit":
-            print("EXIT")
+            if command == "exit":
+                break
+            elif command == "ls":
+                Methods.handle_ls(args)
+            elif command == "cd":
+                Methods.handle_cd(args)
+            else:
+                Methods.handle_unknown_command(command)
+
+        except KeyboardInterrupt:
+            print("\nUse 'exit' command to quit")
+        except EOFError:
             break
-        elif command == "ls": handle_ls(args)
-        elif command == "cd": handle_cd(args)
-        else: handle_unknown_command(command)
 
 main()
