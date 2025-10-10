@@ -38,6 +38,12 @@ def main():
                 Methods.handle_ls(args)
             elif command == "cd":
                 Methods.handle_cd(args)
+            elif command == "echo":
+                Methods.handle_echo(args)
+            elif command == "uname":
+                Methods.handle_uname(args)
+            elif command == "head":
+                Methods.handle_head(args)
             else:
                 Methods.handle_unknown_command(command)
 
